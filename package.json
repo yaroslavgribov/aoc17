@@ -1,0 +1,23 @@
+{
+  "name": "adventofcode",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yaroslavgribov/aoc17.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yaroslavgribov/aoc17/issues"
+  },
+  "homepage": "https://github.com/yaroslavgribov/aoc17#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "ramda": "^0.25.0"
+  }
+}
