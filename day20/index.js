@@ -10,6 +10,8 @@ const {
   map
 } = require('ramda')
 
+const onlyUniqueBy = require('./util/onlyUniqueBy')
+
 const path = __dirname + '/resources/input.txt'
 
 const velocityProp = prop('velocity')
@@ -47,11 +49,13 @@ const getDistance = i => {
 }
 
 const tick = (times, array, fn) => {
+  const arrayNext = onlyUniqueBy('position', array)
+
   if (times === 0) {
-    return array.map(fn)
+    return arrayNext.map(fn)
   }
 
-  return tick(times - 1, array.map(fn), fn)
+  return tick(times - 1, arrayNext.map(fn), fn)
 }
 
 const run = (e, file) => {
@@ -67,7 +71,8 @@ const run = (e, file) => {
     acceleration: nth(2, n)
   }))
 
-  const results = tick(319, pointsArray, nextTick).reduce(
+  const afterTicks =  tick(5000, pointsArray, nextTick)
+  const results = afterTicks.reduce(
     ({ distance, min }, i, idx) => {
       if (getDistance(i.position) < distance) {
         return {
@@ -80,7 +85,7 @@ const run = (e, file) => {
     { min: 0, distance: Infinity }
   )
 
-  console.log(results)
+  console.log(afterTicks.length)
 }
 
 fs.readFile(path, 'utf8', run)
