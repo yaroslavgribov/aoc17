@@ -2,40 +2,34 @@ const fs = require('fs')
 const path = require('path')
 const {
   split,
-  toString,
   compose,
   map,
-  replace,
-  trim,
   reverse,
-  pluck,
   length,
-  zip,
   keys,
   join,
-  converge,
   juxt,
-  concat,
   prop,
   reduce,
-  ifElse
 } = require('ramda')
 
-const input = path.join(__dirname, 'resources', 'example.txt')
+const input = path.join(__dirname, 'resources', 'input.txt')
 const start = '.#./..#/###'
 
 const makeMatrix = compose(map(split('')), split('/'))
 
 const flip = matrix =>
   matrix[0].map((column, index) => matrix.map(row => row[index]))
+
 const normal = makeMatrix
-const flipVertical = compose(reverse, makeMatrix)
-const flipHorizontal = compose(map(reverse), makeMatrix)
+const none = matrix => matrix
+const flipVertical = reverse
+const flipHorizontal = map(reverse)
 const rotateRight = compose(flip, flipVertical)
-const rotateLeft = compose(reverse, flip, makeMatrix)
+const rotateLeft = compose(reverse, flip)
 
 const transforms = juxt([
-  normal,
+  none,
   flipHorizontal,
   flipVertical,
   rotateLeft,
@@ -46,76 +40,9 @@ const transforms = juxt([
   compose(flipHorizontal, rotateRight)
 ])
 
-const possibleTransforms = [
-  [
-    // normal
-    ['.', '#', '.'],
-    ['.', '.', '#'],
-    ['#', '#', '#']
-  ],
-  [
-    // 90deg right
-    ['#', '.', '.'],
-    ['#', '.', '#'],
-    ['#', '#', '.']
-  ],
-  [
-    // 90 deg left
-    ['.', '#', '#'],
-    ['#', '.', '#'],
-    ['.', '.', '#']
-  ],
-  [
-    // vertical flip
-    ['#', '#', '#'],
-    ['.', '.', '#'],
-    ['.', '#', '.']
-  ],
-  [ // vertical flip and 90 deg left
-    ['#', '#', '.'],
-    ['#', '.', '#'],
-    ['#', '.', '.']
-  ],
-  [ // vertical flip and 90 deg right
-    ['.', '.', '#'],
-    ['#', '.', '#'],
-    ['.', '#', '#']
-  ],
-  [
-    // horizontal flip
-    ['.', '#', '.'],
-    ['#', '.', '.'],
-    ['#', '#', '#']
-  ]
-]
-
-const size = length
-
-const getArray = split('\r\n')
-
-const getMap = compose(map(split(' => ')), getArray)
-
 const getKey = compose(join('/'), map(join('')))
 
-const lookupList = pic => {
-  const key = getKey(pic)
-  return transforms(key)
-}
-
-const getPatternsMap = compose(
-  reduce((acc, v) => {
-    return Object.assign(acc, { [v[0]]: v[1] })
-  }, {}),
-  getMap
-)
-
-/*
-  [1,2,3,4,5,6]
-  [1,2] split(0, 2) 0, count * 1
-  [3,4] split(2, 4) count * 1, count * 2
-  [5,6] split(4, 6) count * 2, count * 3,
-                    count * 3, count * 4
-*/
+const lookupList = compose(transforms, makeMatrix, getKey)
 
 const lookup = patternBook => {
   const patterns = patternBook
@@ -126,21 +53,9 @@ const lookup = patternBook => {
       return variants.indexOf(key) !== -1
     })
 
-    const exactMatch = compose(normal, prop(match))(patterns)
-
-    return exactMatch
+    return compose(normal, prop(match))(patterns)
   }
 }
-
-// if (size % 3 === 0 ) { // eq 3, 6, 9, 12, 15
-// break grid in squares 3x3
-// } else {
-// break grid in squares 2x2
-// }
-// squares.map(findMatchingPattern)
-// concat
-// start over again
-// as many times as specified
 
 function chop(grid) {
   let gridSize = grid.length // Size of a line *is* size of a *square* grid
@@ -192,20 +107,41 @@ const nextGrid = (grid, patterns) => {
 }
 
 const enhance = (times, grid, patterns) => {
-  if (times <= 1) return grid
+  if (times <= 0) return grid
 
   const gridAux = nextGrid(grid, patterns)
-
   return enhance(times - 1, gridAux, patterns)
 }
+
+const getMap = compose(map(split(' => ')), split('\n'))
+
+const getPatternsMap = compose(
+  reduce((acc, v) => {
+    return Object.assign(acc, { [v[0]]: v[1] })
+  }, {}),
+  getMap
+)
 
 const run = (e, res) => {
   // catch possible errors
   if (e) return e
 
   const patterns = getPatternsMap(res)
+  
+  // Part 1
+  // const fractal = enhance(5, makeMatrix(start), patterns) 
+  // Part 2
+  const fractal = enhance(5, makeMatrix(start), patterns)
+  const on = fractal.reduce((count, row) => {
+    return (
+      count +
+      row.reduce((rowCount, col) => {
+        return col === '#' ? rowCount + 1 : rowCount
+      }, 0)
+    )
+  }, 0)
 
-  enhance(5, makeMatrix(start), patterns)
+  console.log(on)
 }
 
 fs.readFile(input, 'utf8', run)
