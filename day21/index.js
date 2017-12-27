@@ -131,7 +131,7 @@ const run = (e, res) => {
   // Part 1
   // const fractal = enhance(5, makeMatrix(start), patterns) 
   // Part 2
-  const fractal = enhance(5, makeMatrix(start), patterns)
+  const fractal = enhance(18, makeMatrix(start), patterns)
   const on = fractal.reduce((count, row) => {
     return (
       count +
