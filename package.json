@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/yaroslavgribov/aoc17#readme",
   "dependencies": {
+    "js-combinatorics": "^0.5.3",
     "lodash": "^4.17.4",
     "ramda": "^0.25.0"
   }
